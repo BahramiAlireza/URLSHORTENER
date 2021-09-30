@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  django_app:
+    build: .
+    command: >
+      sh -cc "python manage.py migrate &&
+              python manage.py runserver 0.0.0.0:8000"
+    container_name: 'app'
+    ports:
+      - 8000:8000
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
+      - CELERY_BROKER=redis://redis:6379/0 
+      - CELERY_BACKEND=redis://redis:6379/0  
+    depends_on:
+      - redis
+      
+  redis:
+    restart: always
+    image: redis:alpine
+    expose:
+      - 6379
+
+  celery:
+    restart: always
+    build: .
+    command: celery -A urlShortener worker -l INFO
+    depends_on:
+      - redis
+      - django_app
+
