@@ -10,7 +10,6 @@ COPY ./requirements /app/requirements
 
 RUN pip install -r requirements
 
-
 ENV SETTINGS='urlShortener.settings'
 
 COPY . /app
